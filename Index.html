@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Online Code Compiler</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css"
+    />
+    <!-- Existing themes -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/eclipse.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/solarized.min.css"
+    />
+    <!-- New themes -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material.min.css"
+    />
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #0d3b66; /* Dark blue background */
+        color: #fff; /* Adjusted text color for visibility */
+        line-height: 1.6;
+        font-size: 16px;
+      }
+      h1 {
+        background-color: #3498db;
+        color: #ffffff;
+        padding: 20px 0;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 24px;
+      }
+      #codeEditor,
+      #outputFrame {
+        width: 80%;
+        height: 300px;
+        margin: 20px auto; /* Centering and adding space around the editor */
+        display: block;
+        border-radius: 8px;
+        background-color: #fff; /* White background for editor and output frame */
+      }
+      button {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        display: block;
+        margin: 10px auto;
+        text-align: center;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        transition: background-color 0.3s ease;
+      }
+      button:hover {
+        background-color: #c0392b;
+      }
+      select {
+        width: 150px;
+        padding: 10px;
+        margin: 10px auto;
+        display: block;
+        font-size: 16px;
+        border-radius: 8px;
+        background-color: #fff; /* Ensuring the select element stands out */
+        color: #333;
+      }
+      pre,
+      iframe {
+        border: none;
+        background-color: #000; /* Black background for outputs */
+        color: #fff; /* White text for visibility */
+        padding: 20px;
+        font-size: 16px;
+        overflow: auto;
+        border-radius: 8px;
+      }
+      #stats {
+        text-align: center;
+        margin-top: 10px;
+        color: #fff; /* White text for visibility */
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Online Code Compiler</h1>
+    <select id="language">
+      <option value="python">Python</option>
+      <option value="javascript">JavaScript</option>
+      <option value="html">HTML/CSS</option>
+    </select>
+    <select id="theme">
+      <option value="default">Default</option>
+      <option value="monokai">Monokai</option>
+      <option value="eclipse">Eclipse</option>
+      <option value="solarized light">Solarized Light</option>
+      <option value="dracula">Dracula</option>
+      <option value="material">Material</option>
+    </select>
+    <div id="codeEditor"></div>
+    <br />
+    <button onclick="compileCode()">Run Code</button>
+    <button onclick="clearOutput()">Clear Output</button>
+    <button onclick="saveCodeToFile()">Save Code</button>
+    <pre id="output" style="display: none"></pre>
+    <iframe id="outputFrame" style="display: none"></iframe>
+    <div id="stats"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+    <script>
+      var editor = CodeMirror(document.getElementById("codeEditor"), {
+        value: "print('Hello, World!')",
+        mode: "python",
+        theme: "default",
+        lineNumbers: true,
+      });
+
+      document.getElementById("theme").addEventListener("change", function () {
+        editor.setOption("theme", this.value);
+      });
+
+      document
+        .getElementById("language")
+        .addEventListener("change", function () {
+          var mode = this.value;
+          switch (mode) {
+            case "python":
+              editor.setOption("mode", "text/x-python");
+              editor.setValue("print('Hello, World!')");
+              break;
+            case "javascript":
+              editor.setOption("mode", "text/javascript");
+              editor.setValue("console.log('Hello, World!');");
+              break;
+            case "html":
+              editor.setOption("mode", "htmlmixed");
+              editor.setValue(
+                "<!DOCTYPE html>\n<html>\n<head>\n<style>\nbody { color: red; }\n</style>\n<title>Hello</title>\n</head>\n<body>\nHello, World with CSS!\n</body>\n</html>"
+              );
+              break;
+          }
+        });
+
+      function compileCode() {
+        const code = editor.getValue();
+        const language = document.getElementById("language").value;
+        const outputPre = document.getElementById("output");
+        const outputFrame = document.getElementById("outputFrame");
+
+        if (language === "html") {
+          outputPre.style.display = "none";
+          outputFrame.style.display = "block";
+          outputFrame.contentWindow.document.open();
+          outputFrame.contentWindow.document.write(code);
+          outputFrame.contentWindow.document.close();
+        } else {
+          outputFrame.style.display = "none";
+          outputPre.style.display = "block";
+          // Replace this URL with your actual endpoint
+          fetch("http://127.0.0.1:5000/compile_code", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ code: code, language: language }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              outputPre.textContent = data.output || data.error;
+              document.getElementById(
+                "stats"
+              ).innerHTML = `Execution Time: ${data.time} sec, Memory Usage: ${data.memory} MB`;
+            })
+            .catch((error) => {
+              outputPre.textContent =
+                "Error fetching the response: " + error.message;
+            });
+        }
+      }
+
+      function clearOutput() {
+        document.getElementById("output").textContent = "";
+        document.getElementById("outputFrame").srcdoc = "";
+        document.getElementById("stats").textContent = "";
+      }
+
+      function saveCodeToFile() {
+        const code = editor.getValue();
+        const language = document.getElementById("language").value;
+        const filename =
+          "code." +
+          (language === "python"
+            ? "py"
+            : language === "javascript"
+            ? "js"
+            : "html");
+        const blob = new Blob([code], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    </script>
+  </body>
+</html>
