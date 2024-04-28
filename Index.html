@@ -8,7 +8,6 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css"
     />
-    <!-- Existing themes -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css"
@@ -21,7 +20,6 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/solarized.min.css"
     />
-    <!-- New themes -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css"
@@ -35,8 +33,8 @@
         font-family: "Arial", sans-serif;
         margin: 0;
         padding: 0;
-        background-color: #0d3b66; /* Dark blue background */
-        color: #fff; /* Adjusted text color for visibility */
+        background-color: #0d3b66;
+        color: #fff;
         line-height: 1.6;
         font-size: 16px;
       }
@@ -52,10 +50,10 @@
       #outputFrame {
         width: 80%;
         height: 300px;
-        margin: 20px auto; /* Centering and adding space around the editor */
+        margin: 20px auto;
         display: block;
         border-radius: 8px;
-        background-color: #fff; /* White background for editor and output frame */
+        background-color: #fff;
       }
       button {
         background-color: #e74c3c;
@@ -81,14 +79,14 @@
         display: block;
         font-size: 16px;
         border-radius: 8px;
-        background-color: #fff; /* Ensuring the select element stands out */
+        background-color: #fff;
         color: #333;
       }
       pre,
       iframe {
         border: none;
-        background-color: #000; /* Black background for outputs */
-        color: #fff; /* White text for visibility */
+        background-color: #000;
+        color: #fff;
         padding: 20px;
         font-size: 16px;
         overflow: auto;
@@ -97,7 +95,7 @@
       #stats {
         text-align: center;
         margin-top: 10px;
-        color: #fff; /* White text for visibility */
+        color: #fff;
       }
     </style>
   </head>
@@ -136,6 +134,20 @@
         theme: "default",
         lineNumbers: true,
       });
+
+      window.onload = function () {
+        // Reset the theme to default
+        document.getElementById("theme").value = "default";
+        editor.setOption("theme", "default");
+
+        // Reset the language and code editor to Python as default
+        document.getElementById("language").value = "python";
+        editor.setOption("mode", "text/x-python");
+        editor.setValue("print('Hello, World!')");
+
+        // Clear output and stats
+        clearOutput();
+      };
 
       document.getElementById("theme").addEventListener("change", function () {
         editor.setOption("theme", this.value);
@@ -178,7 +190,6 @@
         } else {
           outputFrame.style.display = "none";
           outputPre.style.display = "block";
-          // Replace this URL with your actual endpoint
           fetch("http://127.0.0.1:5000/compile_code", {
             method: "POST",
             headers: {
@@ -229,3 +240,4 @@
     </script>
   </body>
 </html>
+
